@@ -152,7 +152,7 @@ int main(int argc, char *argv[])
 
 		if (i == parameters.nb_iterations)
 #ifdef PSP2
-			step = -1;
+			i--, step = -1;
 #else
 			done = true;
 #endif
