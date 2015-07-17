@@ -1,0 +1,25 @@
+
+CC = gcc
+CFLAGS = -Wall -Wextra -std=c99 -g -O3
+LDFLAGS = -lm -s
+
+OBJS   = koch.o koch_fonctions.o koch_ihm.o
+EXEC = ./koch.exe
+
+
+all: $(EXEC)
+
+$(EXEC): $(OBJS)
+	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
+
+%.o: %.c %.h
+	$(CC) -o $@ -c  $< $(CFLAGS)
+
+cleanobj:
+	rm -f $(OBJS)
+
+clean:
+	rm -f $(OBJS) $(EXEC)
+
+run: all
+	$(EXEC) 270 4 0xFF0000 0xFFFFFF koch.ppm all
