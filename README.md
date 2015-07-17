@@ -1,10 +1,10 @@
 Koch snowflake fractal animation
 
-Controls :
+Controls
 - L : change color
-- START : exit PSM
+- Δ : exit PSM
 
 
-Dusty school project ported to PSVita using xerpi's vita2d library.
+Dusty school project ported to PSVita using xerpi's libvita2d
 
 ![psp2shell](http://i.imgur.com/bUKIQmi.png)
