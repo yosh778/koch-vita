@@ -18,6 +18,9 @@
 #include <vita2d.h>
 
 PSP2_MODULE_INFO(0, 0, "koch");
+
+#define PRESSED(b, a, m) (((b & m) == 0) && ((a & m) == m))
+
 #endif
 
 
@@ -28,6 +31,7 @@ int main(int argc, char *argv[])
 	struct list *koch = NULL;
 	uint32_t *picture = NULL;
 	char *outfile = NULL;
+	bool screenshots = false;
 
 	srand(time(NULL));
 
@@ -38,7 +42,7 @@ int main(int argc, char *argv[])
 	vita2d_texture *tex = vita2d_create_empty_texture(960, 544);
 	uint32_t *tex_data = vita2d_texture_get_datap(tex);
 
-	SceCtrlData pad;
+	SceCtrlData pad, lastbuttons;
 	memset(&pad, 0, sizeof(pad));
 #endif
 
@@ -57,18 +61,22 @@ int main(int argc, char *argv[])
 	while (!done)
 	{
 #ifdef PSP2
+		lastbuttons = pad;
+
 		sceCtrlPeekBufferPositive(0, &pad, 1);
-		if (pad.buttons & PSP2_CTRL_START) break;
+		if (pad.buttons & PSP2_CTRL_TRIANGLE) break;
 
 
-		if (pad.buttons & PSP2_CTRL_LTRIGGER)
+		if (PRESSED(lastbuttons.buttons, pad.buttons, PSP2_CTRL_LTRIGGER))
 			parameters.fg_color = RGBA8(rand()%255, rand()%255, rand()%255, 255);
+
+		//if (PRESSED(lastbuttons.buttons, pad.buttons, PSP2_CTRL_RTRIGGER))
+		//	screenshots ^= 1;
 
 		vita2d_start_drawing();
 		vita2d_clear_screen();
-#else
-		sprintf(outfile, "%02d_%s", i, parameters.outfile);
 #endif
+		sprintf(outfile, "%02d_%s", i, parameters.outfile);
 
 		if (step > 0)
 			generer_koch(koch, i);
@@ -87,7 +95,29 @@ int main(int argc, char *argv[])
 			render_image_bresenham(picture, koch, parameters.image_size, parameters.fg_color);
 
 			#ifndef PSP2
-			create_image(picture, parameters.image_size, parameters.image_size, outfile);
+
+			const uint32_t LEN = 960 * 544;
+
+			uint32_t *data = calloc(LEN, sizeof(uint32_t));
+
+			for (uint32_t i = 0; i < LEN; i++)
+				data[i] = 0;
+
+
+			uint32_t k = 0;
+
+			for (uint32_t i = 0; i < 544; i++)
+				for (uint32_t j = 0; j < 960; j++) {
+
+					if (208 <= j && j < 752 && k < 544*544)
+						data[i * 960 + j] = picture[k++];
+
+					else
+						data[i * 960 + j] = 0;
+				}
+
+			create_image(data, 960, 544, outfile);
+			//create_image(picture, parameters.image_size, parameters.image_size, outfile);
 			#else
 
 			uint32_t k = 0;
@@ -100,6 +130,10 @@ int main(int argc, char *argv[])
 					else
 						tex_data[i * 960 + j] = 0;
 				}
+
+			if (screenshots)
+				create_image(tex_data, 960, 544, outfile);
+
 			#endif
 		}
 

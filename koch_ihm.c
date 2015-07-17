@@ -133,7 +133,16 @@ void show_parameters(struct parameters parameters)
 void create_image(uint32_t *picture, int32_t size_x, int32_t size_y,
 		  char *filename)
 {
+	#ifdef PSP2
+	char buf[255];
+
+	sceIoMkdir("pss0:/top/Documents/screens", 0777);
+	sprintf(buf, "pss0:/top/Documents/screens/%s", filename);
+
+	FILE *file = fopen(buf, "wb");
+	#else
 	FILE *file = fopen(filename, "wb");
+	#endif
 
 	if (file != NULL) {
 		const uint32_t LEN = size_x * size_y;
@@ -153,18 +162,19 @@ void create_image(uint32_t *picture, int32_t size_x, int32_t size_y,
 			pixel = picture[i];
 
 			/* Rouge */
-			buffer[0] = pixel >> 16;
+			buffer[0] = pixel;
 
 			/* Vert */
 			buffer[1] = pixel >> 8;
 
 			/* Bleu */
-			buffer[2] = pixel;
+			buffer[2] = pixel >> 16;
 
 			fwrite(buffer, 3, 1, file);
 		}
 
 		fclose(file);
+		printf("%s saved", filename);
 	} else {
 		TRACE(2, "Erreur lors de la generation PPM");
 	}
