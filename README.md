@@ -6,3 +6,5 @@ Controls :
 
 
 Dusty school project ported to PSVita using xerpi's vita2d library.
+
+![psp2shell](http://i.imgur.com/1TRnZxt.png)
